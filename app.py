@@ -7,8 +7,8 @@ from sklearn.model_selection import train_test_split
 
 @st.cache_resource
 def train_model():
-    fake = pd.read_csv("Fake.csv")
-    true = pd.read_csv("True.csv")
+    fake = pd.read_csv("Fake_small.csv")
+    true = pd.read_csv("True_small.csv")
 
     fake["label"] = 0
     true["label"] = 1
