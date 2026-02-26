@@ -14,7 +14,10 @@ def train_model():
     true["label"] = 1
 
     data = pd.concat([fake, true])
-    data = data.sample(frac=1).reset_index(drop=True)
+    data = data.sample(frac=1, random_state=42).reset_index(drop=True)
+
+    # Handle missing values
+    data["text"] = data["text"].fillna("")
 
     def clean_text(text):
         text = text.lower()
@@ -32,13 +35,14 @@ def train_model():
     X = vectorizer.fit_transform(X)
 
     X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.25, random_state=42
-)
+        X, y, test_size=0.25, random_state=42
+    )
 
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
 
     return model, vectorizer
+
 
 model, vectorizer = train_model()
 
@@ -48,11 +52,12 @@ user_input = st.text_area("Enter news article text:")
 
 if st.button("Analyze"):
     if user_input:
-        user_input = user_input.lower()
-        user_input = re.sub(r'http\S+', '', user_input)
-        user_input = re.sub(r'[^a-zA-Z]', ' ', user_input)
+        cleaned_input = user_input.lower()
+        cleaned_input = re.sub(r'http\S+', '', cleaned_input)
+        cleaned_input = re.sub(r'[^a-zA-Z]', ' ', cleaned_input)
+        cleaned_input = re.sub(r'\s+', ' ', cleaned_input)
 
-        vector = vectorizer.transform([user_input])
+        vector = vectorizer.transform([cleaned_input])
         prediction = model.predict(vector)
         probability = model.predict_proba(vector)
 
